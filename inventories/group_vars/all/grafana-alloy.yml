@@ -1,0 +1,76 @@
+---
+alloy_version: '1.12.2'
+
+alloy_config: |
+  {% if node_exporter is defined and node_exporter %}
+  prometheus.scrape "node_exporter" {
+    targets = [
+      {
+        "__address__" = "localhost:9100",
+      },
+    ]
+    forward_to  = [prometheus.relabel.default.receiver]
+  }
+  {% endif %}
+
+  {% if cadvisor_exporter is defined and cadvisor_exporter %}
+  prometheus.scrape "cadvisor_exporter" {
+    targets = [
+      {
+        "__address__" = "localhost:8080",
+      },
+    ]
+    forward_to  = [prometheus.relabel.default.receiver]
+  }
+  {% endif %}
+
+  {% if postgres_exporter is defined and postgres_exporter %}
+  prometheus.scrape "postgres_exporter" {
+    targets = [
+      {
+        "__address__" = "localhost:9187",
+      },
+    ]
+    forward_to  = [prometheus.relabel.default.receiver]
+  }
+  {% endif %}
+
+  {% if nginx_exporter is defined and nginx_exporter %}
+  prometheus.scrape "nginx_exporter" {
+    targets = [
+      {
+        "__address__" = "localhost:9113",
+      },
+    ]
+    forward_to  = [prometheus.relabel.default.receiver]
+  }
+  {% endif %}
+
+  prometheus.relabel "default" {
+    forward_to = [prometheus.remote_write.default.receiver]
+
+    rule {
+      action        = "replace"
+      source_labels = ["job"]
+      regex         = "prometheus\\.scrape\\.(.+)"
+      replacement   = "$1"
+      target_label  = "job"
+    }
+
+    rule {
+      action        = "replace"
+      source_labels = ["instance"]
+      regex         = "([^:]+).*"
+      replacement   = "{{ inventory_hostname }}"
+      target_label  = "instance"
+    }
+  }
+
+  prometheus.remote_write "default" {
+    endpoint {
+      url = "{{ mimir_url }}"
+      headers = {
+        "X-Scope-OrgID" = "{{ mimir_org_id }}",
+      }
+    }
+  }
