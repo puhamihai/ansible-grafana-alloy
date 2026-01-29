@@ -1,0 +1,68 @@
+- name: Install and configure exporters and grafana alloy
+  hosts: all
+  become: true
+  gather_facts: true
+  pre_tasks:
+    - name: Enable Node Exporter
+      ansible.builtin.set_fact:
+        node_exporter: true
+      tags:
+        - node_exporter
+        - node
+    - name: Enable Postgres Exporter
+      ansible.builtin.set_fact:
+        postgres_exporter: true
+      tags:
+        - postgres_exporter
+        - postgres
+
+    - name: Enable Nginx Exporter
+      ansible.builtin.set_fact:
+        nginx_exporter: true
+      tags:
+        - nginx_exporter
+        - nginx
+
+    - name: Enable cAdvisor Exporter
+      ansible.builtin.set_fact:
+        cadvisor_exporter: true
+      tags:
+        - cadvisor_exporter
+        - cadvisor
+
+    - name: Debug alloy config
+      ansible.builtin.debug:
+        msg: "{{ alloy_config }}"
+      tags:
+        - alloy
+        - grafana_alloy
+  roles:
+    - name: Node Exporter
+      role: prometheus.prometheus.node_exporter
+      tags:
+        - node_exporter
+        - node
+
+    - name: Postgres Exporter
+      role: prometheus.prometheus.postgres_exporter
+      tags:
+        - postgres_exporter
+        - postgres
+
+    - name: CAdvisor Exporter
+      role: prometheus.prometheus.cadvisor
+      tags:
+        - cadvisor_exporter
+        - cadvisor
+
+    - name: Nginx Exporter
+      role: prometheus.prometheus.nginx_exporter
+      tags:
+        - nginx_exporter
+        - nginx
+
+    - name: Grafana Alloy
+      role: grafana.grafana.alloy
+      tags:
+        - alloy
+        - grafana_alloy
