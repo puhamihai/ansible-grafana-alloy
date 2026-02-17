@@ -29,7 +29,15 @@
       tags:
         - cadvisor_exporter
         - cadvisor
-
+        
+    - name: Enable x509_certificate_exporter Exporter
+      ansible.builtin.set_fact:
+        x509_certificate_exporter: true
+      tags:
+        - x509_certificate_exporter
+        - x509_exporter
+        - x509
+        
     - name: Debug alloy config
       ansible.builtin.debug:
         msg: "{{ alloy_config }}"
@@ -60,7 +68,14 @@
       tags:
         - nginx_exporter
         - nginx
-
+        
+    - name: x509 Certificate Exporter
+      role: x509_certificate_exporter
+      tags:
+        - x509_certificate_exporter
+        - x509_exporter
+        - x509
+        
     - name: Grafana Alloy
       role: grafana.grafana.alloy
       tags:
