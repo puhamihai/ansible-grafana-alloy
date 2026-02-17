@@ -45,7 +45,18 @@ alloy_config: |
     forward_to  = [prometheus.relabel.default.receiver]
   }
   {% endif %}
-
+  
+  {% if x509_certificate_exporter is defined and x509_certificate_exporter %}
+  prometheus.scrape "x509_certificate_exporter" {
+    targets = [
+      {
+        "__address__" = "localhost:9793",
+      },
+    ]
+    forward_to  = [prometheus.relabel.default.receiver]
+  }
+  
+  {% endif %}
   prometheus.relabel "default" {
     forward_to = [prometheus.remote_write.default.receiver]
 
